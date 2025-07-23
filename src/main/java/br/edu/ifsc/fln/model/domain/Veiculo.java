@@ -68,4 +68,9 @@ public class Veiculo {
         this.placa = placa;
         this.modelo = modelo;
     }
+
+    @Override
+    public String toString() {
+        return this.getPlaca() + " - " + modelo.getDescricao(); // ou algo tipo: return placa + " - " + modelo.getDescricao();
+    }
 }

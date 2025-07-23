@@ -4,7 +4,9 @@ public class Servico {
     private int id;
     private String descricao;
     private double valor;
-    private int pontos;
+
+    private ECategoria categoria;
+    private static int pontos;
 
     public int getId() {
         return id;
@@ -39,6 +41,14 @@ public class Servico {
             throw new IllegalArgumentException("Pontos não pode ser negativo.");
         }
         this.pontos = pontos;
+    }
+
+    public ECategoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(ECategoria categoria) {
+        this.categoria = categoria;
     }
 
 

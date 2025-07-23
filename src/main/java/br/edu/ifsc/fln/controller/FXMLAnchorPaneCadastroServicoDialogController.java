@@ -4,12 +4,15 @@
  */
 package br.edu.ifsc.fln.controller;
 
+import br.edu.ifsc.fln.model.domain.ECategoria;
 import br.edu.ifsc.fln.model.domain.Marca;
 import br.edu.ifsc.fln.model.domain.Servico;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -33,6 +36,9 @@ public class FXMLAnchorPaneCadastroServicoDialogController implements Initializa
     private TextField tfServicoDescricao;
 
     @FXML
+    private ComboBox<ECategoria> cbCategoria;
+
+    @FXML
     private TextField tfServicoPontos;
 
     @FXML
@@ -47,8 +53,17 @@ public class FXMLAnchorPaneCadastroServicoDialogController implements Initializa
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }       
+        // Preenche a ComboBox com os valores do enum
+        cbCategoria.setItems(FXCollections.observableArrayList(ECategoria.values()));
+
+        // Atualiza os pontos automaticamente quando muda a categoria
+        cbCategoria.setOnAction(e -> {
+            ECategoria categoria = cbCategoria.getValue();
+            if (categoria != null) {
+                tfServicoPontos.setText(String.valueOf(categoria.getPontos()));
+            }
+        });
+    }
 
     public boolean isBtConfirmarClicked() {
         return btConfirmarClicked;
@@ -74,6 +89,7 @@ public class FXMLAnchorPaneCadastroServicoDialogController implements Initializa
         this.servico = servico;
         this.tfServicoDescricao.setText(servico.getDescricao());
         this.tfServicoValor.setText(String.valueOf(servico.getValor()));
+        this.cbCategoria.setValue(servico.getCategoria());
         this.tfServicoPontos.setText(String.valueOf(servico.getPontos()));
     }
     
@@ -84,6 +100,7 @@ public class FXMLAnchorPaneCadastroServicoDialogController implements Initializa
             servico.setDescricao(tfServicoDescricao.getText());
             servico.setValor(Double.valueOf(tfServicoValor.getText()));
             servico.setPontos(Integer.valueOf(tfServicoPontos.getText()));
+            servico.setCategoria(cbCategoria.getValue());
 
             btConfirmarClicked = true;
             dialogStage.close();

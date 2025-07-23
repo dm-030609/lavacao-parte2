@@ -95,8 +95,8 @@ public class FXMLAnchorPaneCadastroClientePJDialogController implements Initiali
             this.tfCelular.setText(this.cliente.getCelular());
 
             if (this.cliente.getDataCadastro() != null) {
-                dpDataCadastro.setValue(this.cliente.getDataCadastro().toInstant()
-                        .atZone(ZoneId.systemDefault()).toLocalDate());
+                dpDataCadastro.setValue(new java.util.Date(cliente.getDataCadastro().getTime())
+                        .toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             }
 
 

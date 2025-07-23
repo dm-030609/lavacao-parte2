@@ -1,6 +1,7 @@
 package br.edu.ifsc.fln.model.dao;
 
 import br.edu.ifsc.fln.model.domain.Cor;
+import br.edu.ifsc.fln.model.domain.ECategoria;
 import br.edu.ifsc.fln.model.domain.Servico;
 
 import java.sql.Connection;
@@ -25,12 +26,13 @@ public class ServicoDAO {
     }
 
     public boolean inserir(Servico servico) {
-        String sql = "INSERT INTO servico(descricao, valor, pontos) VALUES(?,?,?)";
+        String sql = "INSERT INTO servico(descricao, valor, pontos, categoria) VALUES(?,?,?,?)";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, servico.getDescricao());
             stmt.setDouble(2, servico.getValor());
             stmt.setInt(3, servico.getPontos());
+            stmt.setString(4, servico.getCategoria().name());
             stmt.execute();
             return true;
         } catch (SQLException ex) {
@@ -40,13 +42,14 @@ public class ServicoDAO {
     }
 
     public boolean alterar(Servico servico) {
-        String sql = "UPDATE servico SET descricao=?, valor=?, pontos=? WHERE id=?";
+        String sql = "UPDATE servico SET descricao=?, valor=?, pontos=?, categoria=? WHERE id=?";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, servico.getDescricao());
             stmt.setDouble(2, servico.getValor());
             stmt.setInt(3, servico.getPontos());
-            stmt.setInt(4, servico.getId());
+            stmt.setString(4, servico.getCategoria().name());
+            stmt.setInt(5, servico.getId());
             stmt.execute();
             return true;
         } catch (SQLException ex) {
@@ -80,6 +83,7 @@ public class ServicoDAO {
                 servico.setDescricao(resultado.getString("descricao"));
                 servico.setValor(resultado.getDouble("valor"));
                 servico.setPontos(resultado.getInt("pontos"));
+                servico.setCategoria(ECategoria.valueOf(resultado.getString("categoria")));
                 retorno.add(servico);
             }
         } catch (SQLException ex) {

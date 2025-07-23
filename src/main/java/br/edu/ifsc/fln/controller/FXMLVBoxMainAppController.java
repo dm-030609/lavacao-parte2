@@ -34,7 +34,7 @@ public class FXMLVBoxMainAppController implements Initializable {
     @FXML
     private MenuItem menuItemCadastroServico;
     @FXML
-    private MenuItem menuItemProcessoVenda;
+    private MenuItem menuItemProcessoOrdemServico;
     @FXML
     private MenuItem menuItemProcessoEstoque;
     @FXML
@@ -92,11 +92,13 @@ public class FXMLVBoxMainAppController implements Initializable {
     public void handleMenuItemCadastroServico() throws IOException {
         AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroServico.fxml"));
         anchorPane.getChildren().setAll(a);
-    }     
-    
+    }
+
     @FXML
-    public void handleMenuItemProcessoEstoque() throws IOException {
-        //TODO not implemented yet
+    void handleMenuItemProcessoOrdemServico() throws IOException {
+        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroOrdemServico.fxml"));
+        anchorPane.getChildren().setAll(a);
+
     }     
     
     @FXML
