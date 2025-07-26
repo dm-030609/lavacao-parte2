@@ -1,9 +1,11 @@
 package br.edu.ifsc.fln.controller;
 
+import br.edu.ifsc.fln.model.dao.ItemOSDAO;
 import br.edu.ifsc.fln.model.dao.OrdemDeServicoDAO;
+import br.edu.ifsc.fln.model.dao.PontuacaoDAO;
 import br.edu.ifsc.fln.model.database.Database;
 import br.edu.ifsc.fln.model.database.DatabaseFactory;
-import br.edu.ifsc.fln.model.domain.OrdemDeServico;
+import br.edu.ifsc.fln.model.domain.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -34,6 +36,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoController implements Initializab
     @FXML private Label lbOrdemServicoNumero;
     @FXML private Label lbOrdemServicoStatus;
     @FXML private Label lbOrdemServicoTotal;
+    @FXML private Label lbOrdemServicoPontuacao;
 
     @FXML private TableColumn<OrdemDeServico, Integer> tableColumnOrdemServicoId;
     @FXML private TableColumn<OrdemDeServico, String> tableColumnOrdemServicoData;
@@ -78,9 +81,15 @@ public class FXMLAnchorPaneCadastroOrdemServicoController implements Initializab
             lbOrdemServicoId.setText(String.valueOf(ordemDeServico.getId()));
             lbOrdemServicoNumero.setText(String.valueOf(ordemDeServico.getNumero()));
             lbOrdemServicoData.setText(ordemDeServico.getAgenda().toString());
-            lbOrdemServicoDesconto.setText(String.format("%.2f", ordemDeServico.getDesconto()));
+            lbOrdemServicoDesconto.setText(String.format("%.0f", ordemDeServico.getDesconto()) + " %");
             lbOrdemServicoStatus.setText(ordemDeServico.geteStatus().name());
             lbOrdemServicoTotal.setText(String.format("%.2f", ordemDeServico.getTotal()));
+            lbOrdemServicoCliente.setText(ordemDeServico.getVeiculo().getCliente().getNome());
+            Pontuacao pontuacao = ordemDeServico.getVeiculo().getCliente().getPontuacao();
+            lbOrdemServicoPontuacao.setText(pontuacao != null ? pontuacao.getQtd() + " ponto(s)" : " 0 ponto(s)");
+
+
+
         } else {
             lbOrdemServicoId.setText("");
             lbOrdemServicoNumero.setText("");
@@ -94,28 +103,84 @@ public class FXMLAnchorPaneCadastroOrdemServicoController implements Initializab
     @FXML
     public void handleBtInserir() throws IOException {
         OrdemDeServico ordemDeServico = new OrdemDeServico();
+        ordemDeServico.seteStatus(EStatus.ABERTA);
+
         boolean btConfirmarClicked = showFXMLAnchorPaneCadastroOrdemDeServicoDialog(ordemDeServico);
         if (btConfirmarClicked) {
-            osDAO.inserir(ordemDeServico);
+            osDAO.inserir(ordemDeServico); // precisa garantir que setId está sendo feito aqui
+            long idOS = ordemDeServico.getId();
+
             carregarTableViewOrdemServico();
         }
     }
 
+
     @FXML
     public void handleBtAlterar() throws IOException {
-        OrdemDeServico ordemDeServico = tableViewOrdemServico.getSelectionModel().getSelectedItem();
-        if (ordemDeServico != null) {
-            boolean btConfirmarClicked = showFXMLAnchorPaneCadastroOrdemDeServicoDialog(ordemDeServico);
+        OrdemDeServico osSelecionada = tableViewOrdemServico.getSelectionModel().getSelectedItem();
+
+        if (osSelecionada != null) {
+            OrdemDeServico ordemAntes = osDAO.buscarPorId(osSelecionada.getId());
+            EStatus statusOriginal = ordemAntes.geteStatus();
+
+            boolean btConfirmarClicked = showFXMLAnchorPaneCadastroOrdemDeServicoDialog(ordemAntes);
             if (btConfirmarClicked) {
-                osDAO.alterar(ordemDeServico);
-                carregarTableViewOrdemServico();
+                osDAO.alterar(ordemAntes);
+
+                EStatus statusAtual = ordemAntes.geteStatus();
+
+                Cliente cliente = ordemAntes.getVeiculo().getCliente();
+                Pontuacao pontuacao = cliente.getPontuacao();
+                PontuacaoDAO pontuacaoDAO = new PontuacaoDAO(connection);
+
+                int pontosOS = 0;
+                for (ItemOS item : ordemAntes.getItemsOS()) {
+                    pontosOS += item.getServico().getPontos();
+                }
+
+                if (statusOriginal != EStatus.FECHADA && statusAtual == EStatus.FECHADA) {
+                    pontuacao.adicionar(pontosOS);
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Pontuação Acumulada");
+                    alert.setHeaderText("Ordem de Serviço finalizada com sucesso!");
+                    alert.setContentText("Você ganhou +" + pontosOS + " ponto(s).\n" +
+                            "Total acumulado: " + pontuacao.getQtd() + " ponto(s).");
+                    alert.showAndWait();
+
+                    pontuacaoDAO.atualizar(pontuacao, pontuacao.getId());
+                } else if (statusOriginal == EStatus.FECHADA && statusAtual != EStatus.FECHADA) {
+                    pontuacao.subtrair(pontosOS);
+
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Pontuação Removida");
+                    alert.setHeaderText("Ordem de Serviço reaberta");
+                    alert.setContentText("Foram removidos -" + pontosOS + " ponto(s).\n" +
+                            "Total atual: " + pontuacao.getQtd() + " ponto(s).");
+                    alert.showAndWait();
+
+                    pontuacaoDAO.atualizar(pontuacao, pontuacao.getId());
+                }
+
+                // 🧠 Recarrega OS do banco para garantir dados atualizados
+                OrdemDeServico osAtualizada = osDAO.buscarPorId(ordemAntes.getId());
+
+                carregarTableViewOrdemServico(); // atualiza tabela
+                selecionarItemTableViewOrdemServico(osAtualizada); // atualiza painel lateral
+
             }
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setHeaderText("Nenhuma OS selecionada");
             alert.setContentText("Esta operação requer a seleção de uma Ordem de Serviço na tabela.");
-            alert.show();
+            alert.showAndWait();
         }
     }
+
+
+
+
 
     @FXML
     public void handleBtExcluir() throws IOException {

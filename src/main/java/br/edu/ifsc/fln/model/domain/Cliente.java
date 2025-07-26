@@ -13,14 +13,16 @@ import java.util.List;
  *
  * @author mpisc
  */
-public abstract class Cliente {
-    private int id;
-    private String nome;
-    private String celular;
-    private String email;
-    private Date dataCadastro;
+public abstract class Cliente extends Object implements ICliente {
+    protected int id;
+    protected String nome;
+    protected String celular;
+    protected String email;
+    protected Date dataCadastro;
 
-    private List<Veiculo> veiculos = new ArrayList<>();
+    protected Pontuacao pontuacao = new Pontuacao();
+
+    protected List<Veiculo> veiculos = new ArrayList<>();
 
     public Cliente() {
     }
@@ -73,6 +75,14 @@ public abstract class Cliente {
         this.veiculos = veiculos;
     }
 
+    public Pontuacao getPontuacao() {
+        return pontuacao;
+    }
+
+    public void setPontuacao(Pontuacao pontuacao) {
+        this.pontuacao = pontuacao;
+    }
+
     public void add(Veiculo veiculo) {
         this.veiculos.add(veiculo);
         veiculo.setCliente(this); // concretização da associação bidirecional
@@ -86,6 +96,26 @@ public abstract class Cliente {
     @Override
     public String toString() {
         return nome;
+    }
+
+    @Override // sobrescrição de método
+    public String getDados() {
+        StringBuilder dados = new StringBuilder();
+        dados.append("\nID...........: ").append(this.id).append("\n");
+        dados.append("NOME.........: ").append(this.nome).append("\n");
+        dados.append("CELULAR......: ").append(this.celular).append("\n");
+        dados.append("EMAIL........: ").append(this.email).append("\n");
+        dados.append("DATA CADASTRO: ").append(this.dataCadastro).append("\n");
+        dados.append("PONTUAÇÃO....: ").append(getPontuacao().getQtd()).append("\n");
+        return dados.toString();
+    }
+
+    @Override  // sobrescrição de método
+    public String getDados(String msg) {
+        StringBuilder dados = new StringBuilder();
+        dados.append(getDados());
+        dados.append("Menssagem: ").append(msg);
+        return dados.toString();
     }
     
 }

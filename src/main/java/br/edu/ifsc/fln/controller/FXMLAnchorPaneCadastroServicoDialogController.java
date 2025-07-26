@@ -90,7 +90,14 @@ public class FXMLAnchorPaneCadastroServicoDialogController implements Initializa
         this.tfServicoDescricao.setText(servico.getDescricao());
         this.tfServicoValor.setText(String.valueOf(servico.getValor()));
         this.cbCategoria.setValue(servico.getCategoria());
-        this.tfServicoPontos.setText(String.valueOf(servico.getPontos()));
+        cbCategoria.getItems().setAll(ECategoria.values());
+
+        cbCategoria.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                tfServicoPontos.setText(String.valueOf(Servico.getPontosPorCategoria(newVal)));
+            }
+        });
+
     }
     
 
@@ -99,7 +106,7 @@ public class FXMLAnchorPaneCadastroServicoDialogController implements Initializa
         if (validarEntradaDeDados()) {
             servico.setDescricao(tfServicoDescricao.getText());
             servico.setValor(Double.valueOf(tfServicoValor.getText()));
-            servico.setPontos(Integer.valueOf(tfServicoPontos.getText()));
+            servico.getPontosPorCategoria(servico.getCategoria());
             servico.setCategoria(cbCategoria.getValue());
 
             btConfirmarClicked = true;

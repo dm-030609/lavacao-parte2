@@ -1,12 +1,15 @@
 package br.edu.ifsc.fln.model.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Servico {
     private int id;
     private String descricao;
     private double valor;
 
     private ECategoria categoria;
-    private static int pontos;
+    private static final Map<ECategoria, Integer> pontosPorCategoria = new HashMap<>();
 
     public int getId() {
         return id;
@@ -32,16 +35,19 @@ public class Servico {
         this.valor = valor;
     }
 
-    public int getPontos() {
-        return pontos;
+    static {
+        pontosPorCategoria.put(ECategoria.MOTO, 8);
+        pontosPorCategoria.put(ECategoria.PEQUENO, 10);
+        pontosPorCategoria.put(ECategoria.MEDIO, 15);
+        pontosPorCategoria.put(ECategoria.GRANDE, 20);
+        pontosPorCategoria.put(ECategoria.PADRAO, 5);
     }
 
-    public  void setPontos(int pontos) {
-        if (pontos < 0) {
-            throw new IllegalArgumentException("Pontos não pode ser negativo.");
-        }
-        this.pontos = pontos;
+    public static int getPontosPorCategoria(ECategoria categoria) {
+        return pontosPorCategoria.getOrDefault(categoria, 0);
     }
+
+
 
     public ECategoria getCategoria() {
         return categoria;
@@ -51,8 +57,13 @@ public class Servico {
         this.categoria = categoria;
     }
 
+    @Override
+    public String toString() {
+        return descricao;
+    }
 
-
-
+    public int getPontos() {
+        return getPontosPorCategoria(this.categoria);
+    }
 
 }

@@ -16,6 +16,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.sql.Connection;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
@@ -31,6 +34,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
     @FXML private TextField textFieldValorServico;
     @FXML private TextField textFieldObservacoes;
     @FXML private Button buttonAdicionarServico;
+    @FXML private Button buttonRemoverServico;
 
     @FXML private TableView<ItemOS> tableViewItens;
     @FXML private TableColumn<ItemOS, String> colServico;
@@ -43,17 +47,6 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
     @FXML private Button buttonConfirmar;
     @FXML private Button buttonCancelar;
 
-    @FXML
-    private void handleButtonConfirmar() {
-        btConfirmarClicked = true;
-        dialogStage.close();
-    }
-
-    @FXML
-    private void handleButtonCancelar() {
-        dialogStage.close();
-    }
-
     private final ObservableList<ItemOS> listaItens = FXCollections.observableArrayList();
     private final OrdemDeServicoDAO osDAO = new OrdemDeServicoDAO();
     private final VeiculoDAO veiculoDAO = new VeiculoDAO();
@@ -62,10 +55,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
     private final Database database = DatabaseFactory.getDatabase("mysql");
     private final Connection connection = database.conectar();
 
-
-
     private Stage dialogStage;
-
     private OrdemDeServico ordemDeServico;
     private boolean btConfirmarClicked = false;
 
@@ -89,7 +79,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
         carregarVeiculos();
         carregarServicos();
 
-        comboBoxStatus.setItems(FXCollections.observableArrayList("PENDENTE", "FINALIZADA"));
+        comboBoxStatus.setItems(FXCollections.observableArrayList("ABERTA", "FECHADA", "CANCELADA"));
 
         colServico.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getServico().getDescricao()));
         colValor.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.2f", cell.getValue().getValorServico())));
@@ -99,11 +89,48 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
 
         comboBoxPlaca.setOnAction(e -> preencherCamposVeiculo());
         comboBoxServico.setOnAction(e -> preencherValorServico());
-    }
 
+        textFieldDesconto.textProperty().addListener((observable, oldValue, newValue) -> calcularValorComDesconto());
+    }
 
     public void setOrdemDeServico(OrdemDeServico ordemDeServico) {
         this.ordemDeServico = ordemDeServico;
+
+        if (ordemDeServico != null) {
+            comboBoxPlaca.setValue(ordemDeServico.getVeiculo());
+            preencherCamposVeiculo();
+
+            if (ordemDeServico.getId() > 0) {
+                comboBoxPlaca.setDisable(true);
+                comboBoxPlaca.setStyle("-fx-opacity: 1.0; -fx-background-color: #E0E0E0;");
+                textFieldCliente.setEditable(false);
+                textFieldCliente.setStyle("-fx-background-color: #E0E0E0;");
+                textFieldModelo.setEditable(false);
+                textFieldModelo.setStyle("-fx-background-color: #E0E0E0;");
+                textFieldMarca.setEditable(false);
+                textFieldMarca.setStyle("-fx-background-color: #E0E0E0;");
+                textFieldCategoria.setEditable(false);
+                textFieldCategoria.setStyle("-fx-background-color: #E0E0E0;");
+            }
+
+            if (ordemDeServico.getAgenda() != null) {
+                java.sql.Date dataSql = new java.sql.Date(ordemDeServico.getAgenda().getTime());
+                datePickerData.setValue(dataSql.toLocalDate());
+            }
+
+            if (ordemDeServico.geteStatus() != null) {
+                comboBoxStatus.setValue(ordemDeServico.geteStatus().name());
+            } else {
+                comboBoxStatus.setValue(EStatus.ABERTA.name());
+            }
+
+            textFieldDesconto.setText(String.format("%.2f", ordemDeServico.getDesconto()));
+            textFieldValorTotal.setText(String.format("%.2f", ordemDeServico.getTotal()));
+
+            listaItens.clear();
+            listaItens.addAll(ordemDeServico.getItemsOS());
+            tableViewItens.refresh();
+        }
     }
 
     private void carregarVeiculos() {
@@ -120,9 +147,29 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
         Veiculo veiculo = comboBoxPlaca.getSelectionModel().getSelectedItem();
         if (veiculo != null) {
             textFieldCliente.setText(veiculo.getCliente().getNome());
-            textFieldModelo.setText(veiculo.getModelo().getDescricao());
-            textFieldMarca.setText(veiculo.getModelo().getMarca().getNome());
-            textFieldCategoria.setText(veiculo.getModelo().geteCategoria().toString());
+
+            Modelo modelo = veiculo.getModelo();
+            if (modelo != null) {
+                textFieldModelo.setText(modelo.getDescricao());
+
+                Marca marca = modelo.getMarca();
+                if (marca != null) {
+                    textFieldMarca.setText(marca.getNome());
+                } else {
+                    textFieldMarca.setText("Marca não encontrada");
+                }
+
+                if (modelo.geteCategoria() != null) {
+                    textFieldCategoria.setText(modelo.geteCategoria().name());
+                } else {
+                    textFieldCategoria.setText("Categoria indefinida");
+                }
+
+            } else {
+                textFieldModelo.setText("Modelo não encontrado");
+                textFieldMarca.setText("");
+                textFieldCategoria.setText("");
+            }
         }
     }
 
@@ -137,15 +184,129 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
 
     @FXML
     private void handleButtonAdicionarServico() {
-        Servico s = comboBoxServico.getSelectionModel().getSelectedItem();
-        if (s != null) {
-            ItemOS item = new ItemOS();
-            item.setServico(s);
-            item.setValorServico(s.getValor());
-            item.setObservacoes(textFieldObservacoes.getText());
+        Servico servicoSelecionado = comboBoxServico.getSelectionModel().getSelectedItem();
+        String valorTexto = textFieldValorServico.getText().replace(",", ".");
+        String observacoes = textFieldObservacoes.getText();
 
-            listaItens.add(item);
-            tableViewItens.refresh();
+        if (servicoSelecionado == null || valorTexto.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Atenção");
+            alert.setHeaderText("Campos obrigatórios");
+            alert.setContentText("Selecione um serviço e insira o valor.");
+            alert.showAndWait();
+            return;
         }
+
+        for (ItemOS itemExistente : listaItens) {
+            if (itemExistente.getServico().getId() == servicoSelecionado.getId()) {
+                Alert alerta = new Alert(Alert.AlertType.WARNING);
+                alerta.setTitle("Serviço Duplicado");
+                alerta.setHeaderText("Serviço já adicionado");
+                alerta.setContentText("Este serviço já foi adicionado à ordem de serviço.");
+                alerta.showAndWait();
+                return;
+            }
+        }
+
+        try {
+            double valor = Double.parseDouble(valorTexto);
+
+            ItemOS item = new ItemOS();
+            item.setServico(servicoSelecionado);
+            item.setValorServico(valor);
+            item.setObservacoes(observacoes);
+
+            ordemDeServico.getItemsOS().add(item);
+            listaItens.add(item);
+
+            atualizarValorTotal();
+
+            comboBoxServico.getSelectionModel().clearSelection();
+            textFieldValorServico.clear();
+            textFieldObservacoes.clear();
+
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setHeaderText("Valor inválido");
+            alert.setContentText("O valor inserido não é um número válido.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleButtonRemoverServico() {
+        ItemOS itemSelecionado = tableViewItens.getSelectionModel().getSelectedItem();
+        if (itemSelecionado != null) {
+            listaItens.remove(itemSelecionado);
+            ordemDeServico.getItemsOS().remove(itemSelecionado);
+            atualizarValorTotal();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Atenção");
+            alert.setHeaderText("Nenhum item selecionado");
+            alert.setContentText("Por favor, selecione um item da tabela para remover.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleButtonConfirmar() {
+        if (ordemDeServico != null) {
+            ordemDeServico.setVeiculo(comboBoxPlaca.getSelectionModel().getSelectedItem());
+
+            if (ordemDeServico.getVeiculo() != null) {
+                ordemDeServico.getVeiculo().setCliente(ordemDeServico.getVeiculo().getCliente());
+            }
+
+            if (datePickerData.getValue() != null) {
+                ordemDeServico.setAgenda(java.sql.Date.valueOf(datePickerData.getValue()));
+            } else {
+                ordemDeServico.setAgenda(new java.sql.Date(System.currentTimeMillis()));
+            }
+
+            ordemDeServico.seteStatus(EStatus.valueOf(comboBoxStatus.getValue()));
+
+            try {
+                double desconto = Double.parseDouble(textFieldDesconto.getText().replace(",", "."));
+                ordemDeServico.setDesconto(desconto);
+            } catch (NumberFormatException e) {
+                ordemDeServico.setDesconto(0.0);
+            }
+
+            ordemDeServico.setItemsOS(new ArrayList<>(listaItens));
+
+            ordemDeServico.calcularServico();
+
+            btConfirmarClicked = true;
+            dialogStage.close();
+        }
+    }
+
+    @FXML
+    private void handleButtonCancelar() {
+        dialogStage.close();
+    }
+
+    private void calcularValorComDesconto() {
+        double total = tableViewItens.getItems().stream()
+                .mapToDouble(ItemOS::getValorServico)
+                .sum();
+
+        try {
+            double desconto = Double.parseDouble(textFieldDesconto.getText());
+            double valorFinal = total - (total * (desconto / 100));
+            textFieldValorTotal.setText(String.format("%.2f", valorFinal));
+        } catch (NumberFormatException e) {
+            textFieldValorTotal.setText(String.format("%.2f", total));
+        }
+    }
+
+    private void atualizarValorTotal() {
+        double total = 0.0;
+        for (ItemOS item : listaItens) {
+            total += item.getValorServico();
+        }
+        textFieldValorTotal.setText(String.format("%.2f", total).replace(".", ","));
     }
 }

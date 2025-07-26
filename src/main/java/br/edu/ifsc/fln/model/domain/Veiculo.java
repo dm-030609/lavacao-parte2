@@ -71,6 +71,7 @@ public class Veiculo {
 
     @Override
     public String toString() {
-        return this.getPlaca() + " - " + modelo.getDescricao(); // ou algo tipo: return placa + " - " + modelo.getDescricao();
+        String clienteNome = (cliente != null) ? cliente.getNome() : "null";
+        return placa + " - " + clienteNome;
     }
 }

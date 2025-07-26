@@ -31,7 +31,7 @@ public class ServicoDAO {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, servico.getDescricao());
             stmt.setDouble(2, servico.getValor());
-            stmt.setInt(3, servico.getPontos());
+            stmt.setInt(3, servico.getPontosPorCategoria(servico.getCategoria()));
             stmt.setString(4, servico.getCategoria().name());
             stmt.execute();
             return true;
@@ -47,7 +47,7 @@ public class ServicoDAO {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, servico.getDescricao());
             stmt.setDouble(2, servico.getValor());
-            stmt.setInt(3, servico.getPontos());
+            stmt.setInt(3, Servico.getPontosPorCategoria(servico.getCategoria()));
             stmt.setString(4, servico.getCategoria().name());
             stmt.setInt(5, servico.getId());
             stmt.execute();
@@ -82,7 +82,6 @@ public class ServicoDAO {
                 servico.setId(resultado.getInt("id"));
                 servico.setDescricao(resultado.getString("descricao"));
                 servico.setValor(resultado.getDouble("valor"));
-                servico.setPontos(resultado.getInt("pontos"));
                 servico.setCategoria(ECategoria.valueOf(resultado.getString("categoria")));
                 retorno.add(servico);
             }
@@ -108,7 +107,7 @@ public class ServicoDAO {
                 retorno.setId(resultado.getInt("id"));
                 retorno.setDescricao(resultado.getString("descricao"));
                 retorno.setValor(resultado.getDouble("valor"));
-                retorno.setPontos(resultado.getInt("pontos"));
+                retorno.setCategoria(ECategoria.valueOf(resultado.getString("categoria")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(ServicoDAO.class.getName()).log(Level.SEVERE, null, ex);

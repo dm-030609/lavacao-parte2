@@ -43,15 +43,17 @@ public class ItemOSDAO {
             stmt.setLong(1, idOrdemServico);
             ResultSet rs = stmt.executeQuery();
 
+            ServicoDAO servicoDAO = new ServicoDAO(); // ⚠️ Certifique-se de injetar/definir conexão abaixo
+            servicoDAO.setConnection(connection);
+
             while (rs.next()) {
                 ItemOS item = new ItemOS();
                 item.setId(rs.getInt("id"));
                 item.setValorServico(rs.getDouble("valor_servico"));
                 item.setObservacoes(rs.getString("observacoes"));
 
-                // Vincula o serviço (só ID por enquanto, pode buscar detalhes depois)
-                Servico servico = new Servico();
-                servico.setId(rs.getInt("id_servico"));
+                int idServico = rs.getInt("id_servico");
+                Servico servico = servicoDAO.buscar(idServico); // 🔥 Busca completa, nome incluso
                 item.setServico(servico);
 
                 itens.add(item);
@@ -60,6 +62,7 @@ public class ItemOSDAO {
 
         return itens;
     }
+
 
     // REMOVER todos os itens vinculados a uma OS (útil para edição ou exclusão em cascata)
     public void removerPorOrdem(long idOrdemServico) throws SQLException {

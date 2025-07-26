@@ -71,18 +71,27 @@ public class VeiculoDAO {
         }
     }
 
+    public void removerPorCliente(int idCliente) throws SQLException {
+        String sql = "DELETE FROM veiculo WHERE id_cliente = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idCliente);
+            stmt.executeUpdate();
+        }
+    }
+
+
     public List<Veiculo> listar() {
         //String sql = "SELECT * FROM veiculo JOIN marca ma ON ma.id = id_marca";
         String sql = "SELECT v.*, m.descricao AS modelo_descricao, m.categoria AS modelo_categoria, " +
-                     "mo.potencia AS motor_potencia, mo.tipoCombustivel AS motor_tipo_combustivel, " +
-                     "ma.id AS id_marca, ma.nome AS nome_marca , " +
-                     "c.nome as cor_nome "+
-                     "FROM veiculo v " +
-                     "JOIN modelo m ON v.id_modelo = m.id " +
-                     "JOIN motor mo ON mo.id_modelo = m.id " +
-                     "JOIN cor c ON v.id_cor = c.id " +
-                     "JOIN marca ma ON m.id_marca = ma.id " +
-                     "JOIN cliente cl ON v.id_cliente = cl.id";
+                "mo.potencia AS motor_potencia, mo.tipoCombustivel AS motor_tipo_combustivel, " +
+                "ma.id AS id_marca, ma.nome AS nome_marca , " +
+                "c.nome as cor_nome " +
+                "FROM veiculo v " +
+                "JOIN modelo m ON v.id_modelo = m.id " +
+                "JOIN motor mo ON mo.id_modelo = m.id " +
+                "JOIN cor c ON v.id_cor = c.id " +
+                "JOIN marca ma ON m.id_marca = ma.id " +
+                "JOIN cliente cl ON v.id_cliente = cl.id";
         List<Veiculo> retorno = new ArrayList<>();
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -136,19 +145,83 @@ public class VeiculoDAO {
     }
 
     public Veiculo buscar(int id) {
-        String sql = "SELECT * FROM veiculo WHERE id=?";
-        Veiculo retorno = new Veiculo();
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
+        String sql = """
+        SELECT 
+            v.id AS veiculo_id, v.placa,
+            m.id AS modelo_id, m.descricao AS modelo_desc, m.categoria,
+            ma.id AS marca_id, ma.nome AS marca_nome,
+            c.id AS cliente_id, c.nome AS cliente_nome,
+            IF(pf.id_cliente IS NOT NULL, 'F', 'J') AS cliente_tipo,
+            pf.cpf, pj.cnpj,
+            p.id AS pontuacao_id, p.quantidade
+        FROM veiculo v
+        JOIN modelo m ON v.id_modelo = m.id
+        JOIN marca ma ON m.id_marca = ma.id
+        JOIN cliente c ON v.id_cliente = c.id
+        LEFT JOIN pessoa_fisica pf ON c.id = pf.id_cliente
+        LEFT JOIN pessoa_juridica pj ON c.id = pj.id_cliente
+        LEFT JOIN pontuacao p ON c.id_pontuacao = p.id
+        WHERE v.id = ?;
+    """;
+
+        Veiculo veiculo = null;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
-            ResultSet resultado = stmt.executeQuery();
-            if (resultado.next()) {
-                retorno.setId(resultado.getInt("id"));
-                retorno.setPlaca(resultado.getString("nome"));
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Marca
+                Marca marca = new Marca();
+                marca.setId(rs.getInt("marca_id"));
+                marca.setNome(rs.getString("marca_nome"));
+
+                // Modelo
+                Modelo modelo = new Modelo();
+                modelo.setId(rs.getInt("modelo_id"));
+                modelo.setDescricao(rs.getString("modelo_desc"));
+                modelo.setMarca(marca);
+                modelo.seteCategoria(ECategoria.valueOf(rs.getString("categoria")));
+
+                // Cliente
+                Cliente cliente;
+                String tipo = rs.getString("cliente_tipo");
+
+                if ("F".equalsIgnoreCase(tipo)) {
+                    PessoaFisica pf = new PessoaFisica();
+                    pf.setCpf(rs.getString("cpf"));
+                    cliente = pf;
+                } else {
+                    PessoaJuridica pj = new PessoaJuridica();
+                    pj.setCnpj(rs.getString("cnpj"));
+                    cliente = pj;
+                }
+
+                cliente.setId(rs.getInt("cliente_id"));
+                cliente.setNome(rs.getString("cliente_nome"));
+
+                // Pontuação
+                Pontuacao pontuacao = new Pontuacao();
+                pontuacao.setId(rs.getInt("pontuacao_id"));
+                pontuacao.setQtd(rs.getInt("quantidade"));
+                cliente.setPontuacao(pontuacao);
+
+                // Veículo
+                veiculo = new Veiculo();
+                veiculo.setId(rs.getInt("veiculo_id"));
+                veiculo.setPlaca(rs.getString("placa"));
+                veiculo.setModelo(modelo);
+                veiculo.setCliente(cliente);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(VeiculoDAO.class.getName()).log(Level.SEVERE, null, ex);
+
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return retorno;
+
+        return veiculo;
     }
+
+
+
 }

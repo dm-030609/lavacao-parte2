@@ -1,5 +1,6 @@
 package br.edu.ifsc.fln.model.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class OrdemDeServico {
     private Veiculo veiculo;
 
     private Servico servico = new Servico();
+
 
     public int getId() {
         return id;
@@ -91,8 +93,11 @@ public class OrdemDeServico {
         for (ItemOS item : this.getItemsOS()) {
             total += item.getValorServico();
         }
-        total -= desconto;
+
+        // Aplica corretamente o desconto como porcentagem
+        total = total - (total * (desconto / 100.0));
     }
+
 
     public void add(ItemOS item) {
         this.itemsOS.add(item);
@@ -101,4 +106,9 @@ public class OrdemDeServico {
     public void remove(ItemOS item) {
         this.itemsOS.remove(item);
     }
+
+    public OrdemDeServico() {
+        this.itemsOS = new ArrayList<>(); // 👈 evita nulls pra sempre
+    }
+
 }

@@ -1,10 +1,7 @@
 package br.edu.ifsc.fln.model.dao;
 
 
-import br.edu.ifsc.fln.model.domain.ETipoCombustivel;
-import br.edu.ifsc.fln.model.domain.Marca;
-import br.edu.ifsc.fln.model.domain.Modelo;
-import br.edu.ifsc.fln.model.domain.Motor;
+import br.edu.ifsc.fln.model.domain.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -142,18 +139,40 @@ public class ModeloDAO {
 
     public Modelo buscar(int id) {
         String sql = "SELECT * FROM modelo WHERE id=?";
-        Modelo retorno = new Modelo();
+        Modelo modelo = null;
+
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, id);
             ResultSet resultado = stmt.executeQuery();
+
             if (resultado.next()) {
-                retorno.setId(resultado.getInt("id"));
-                retorno.setDescricao(resultado.getString("nome"));
+                modelo = new Modelo();
+                modelo.setId(resultado.getInt("id"));
+                modelo.setDescricao(resultado.getString("descricao"));
+
+                // 🔥 Carrega categoria se existir
+                String categoriaStr = resultado.getString("categoria");
+                if (categoriaStr != null) {
+                    modelo.seteCategoria(ECategoria.valueOf(categoriaStr));
+                }
+
+                // 🔥 Carrega a marca vinculada
+                int idMarca = resultado.getInt("id_marca");
+                MarcaDAO marcaDAO = new MarcaDAO();
+                marcaDAO.setConnection(connection);
+                Marca marca = marcaDAO.buscar(idMarca); // <-- precisa existir
+                modelo.setMarca(marca); // <-- isso resolve o teu erro
             }
+
+            resultado.close();
+            stmt.close();
         } catch (SQLException ex) {
             Logger.getLogger(ModeloDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return retorno;
+
+        return modelo;
     }
+
+
 }
