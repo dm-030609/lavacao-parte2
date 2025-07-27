@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="grafico_ordens" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1b175830-287b-4320-becb-342d611a4bde">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySQLLocal"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 
+            DATE_FORMAT(o.agenda, '%m/%Y') AS mes,
+            COUNT(o.id) AS total_ordens,
+            SUM(o.total) AS valor_total
+        FROM ordem_servico o
+        WHERE o.e_status = 'FECHADA'
+        GROUP BY DATE_FORMAT(o.agenda, '%m/%Y')
+        ORDER BY MAX(o.agenda) DESC;]]>
+	</queryString>
+	<field name="mes" class="java.lang.String"/>
+	<field name="total_ordens" class="java.lang.Long"/>
+	<field name="valor_total" class="java.math.BigDecimal"/>
+	<summary>
+		<band height="300" splitType="Stretch">
+			<barChart>
+				<chart evaluationTime="Report">
+					<reportElement x="0" y="0" width="500" height="250" forecolor="#333333" backcolor="#FFFFFF" uuid="41c7928f-0546-473e-9a2c-c026c07de943"/>
+					<chartTitle>
+						<font size="14" isBold="true"/>
+						<titleExpression><![CDATA["Gráfico de OS Fechadas por Mês"]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend>
+						<font size="10"/>
+					</chartLegend>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["OS Fechadas"]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{mes}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{total_ordens}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
+	</summary>
+</jasperReport>

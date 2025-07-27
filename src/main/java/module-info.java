@@ -4,6 +4,7 @@ module Main {
     requires atlantafx.base;
     requires java.sql;
     requires java.desktop;
+    requires jasperreports;
     opens br.edu.ifsc.fln to javafx.fxml;
     opens br.edu.ifsc.fln.controller to javafx.fxml;
     opens br.edu.ifsc.fln.model.domain to javafx.base;

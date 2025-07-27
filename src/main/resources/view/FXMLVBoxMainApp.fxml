@@ -1,45 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.edu.ifsc.fln.controller.FXMLVBoxMainAppController">
-   <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="Cadastros">
-            <items>
-              <MenuItem fx:id="menuItemCadastroCor" mnemonicParsing="false" onAction="#handleMenuItemCadastroCor" text="Cor" />
-                  <MenuItem fx:id="menuItemCadastroMarca" mnemonicParsing="false" onAction="#handleMenuItemCadastroMarca" text="Marca" />
-                  <MenuItem fx:id="menuItemCadastroModelo" mnemonicParsing="false" onAction="#handleMenuItemCadastroModelo" text="Modelo" />
-                  <MenuItem fx:id="menuItemCadastroVeiculo" mnemonicParsing="false" onAction="#handleMenuItemCadastroVeiculo" text="Veiculo" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuItemCadastroCliente" mnemonicParsing="false" onAction="#handleMenuItemCadastroCliente" text="Cliente" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuItemCadastroServico" mnemonicParsing="false" onAction="#handleMenuItemCadastroServico" text="Servico" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Processos">
-            <items>
-                  <MenuItem fx:id="menuItemProcessoOrdemServico" mnemonicParsing="false" onAction="#handleMenuItemProcessoOrdemServico" text="Ordem de Serviço" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Gráficos">
-            <items>
-              <MenuItem fx:id="menuItemGraficoVendasPorMes" mnemonicParsing="false" onAction="#handleMenuItemGraficosVendasPorMes" text="Vendas por  Mês" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="Relatórios">
-              <items>
-                <MenuItem fx:id="menuItemRelatorioEstoque" mnemonicParsing="false" onAction="#handleMenuItemRelatorioEstoqueProdutos" text="Estoque" />
-              </items>
-            </Menu>
-        </menus>
-      </MenuBar>
-      <AnchorPane fx:id="anchorPane" prefHeight="382.0" prefWidth="600.0" />
-   </children>
+<VBox xmlns="http://javafx.com/javafx/23.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.edu.ifsc.fln.controller.FXMLVBoxMainAppController"
+      prefHeight="720.0" prefWidth="1280.0"
+      VBox.vgrow="ALWAYS">
+
+    <children>
+        <MenuBar>
+            <menus>
+                <Menu text="Cadastros">
+                    <items>
+                        <MenuItem fx:id="menuItemCadastroCor" text="Cor" onAction="#handleMenuItemCadastroCor"/>
+                        <MenuItem fx:id="menuItemCadastroMarca" text="Marca" onAction="#handleMenuItemCadastroMarca"/>
+                        <MenuItem fx:id="menuItemCadastroModelo" text="Modelo" onAction="#handleMenuItemCadastroModelo"/>
+                        <MenuItem fx:id="menuItemCadastroVeiculo" text="Veículo" onAction="#handleMenuItemCadastroVeiculo"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem fx:id="menuItemCadastroCliente" text="Cliente" onAction="#handleMenuItemCadastroCliente"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem fx:id="menuItemCadastroServico" text="Serviço" onAction="#handleMenuItemCadastroServico"/>
+                    </items>
+                </Menu>
+                <Menu text="Processos">
+                    <items>
+                        <MenuItem fx:id="menuItemProcessoOrdemServico" text="Ordem de Serviço" onAction="#handleMenuItemProcessoOrdemServico"/>
+                    </items>
+                </Menu>
+                <Menu text="Gráficos">
+                    <items>
+                        <MenuItem fx:id="menuItemGraficoVendasPorMes" text="Vendas por Mês" onAction="#handleMenuItemGraficosVendasPorMes"/>
+                        <MenuItem fx:id="menuItemGraficoOrdemServicoPorMes" text="Ordem de Serviço por Mês" onAction="#handleMenuItemGraficosOrdemServicoPorMes"/>
+                    </items>
+                </Menu>
+                <Menu text="Relatórios">
+                    <items>
+                        <MenuItem fx:id="menuItemRelatorioEstoque" text="Estoque" onAction="#handleMenuItemRelatorioEstoqueProdutos"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+
+        <!-- View dinâmica aqui dentro -->
+        <AnchorPane fx:id="anchorPane" prefHeight="9999.0" prefWidth="9999.0" VBox.vgrow="ALWAYS" />
+    </children>
 </VBox>

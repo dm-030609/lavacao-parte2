@@ -4,7 +4,9 @@ import br.edu.ifsc.fln.model.domain.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrdemDeServicoDAO {
     private Connection connection;
@@ -228,4 +230,58 @@ public class OrdemDeServicoDAO {
 
         return ordem;
     }
+
+
+
+    public Map<String, Double> buscarTotaisPorMes() {
+        Map<String, Double> mapa = new LinkedHashMap<>();
+
+        String sql = """
+        SELECT DATE_FORMAT(agenda, '%m/%Y') as mes, SUM(total) as total_mes
+        FROM ordem_servico
+        WHERE e_status = 'FECHADA'
+        GROUP BY mes
+        ORDER BY STR_TO_DATE(mes, '%m/%Y')
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String mes = rs.getString("mes");
+                double total = rs.getDouble("total_mes");
+                mapa.put(mes, total);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mapa;
+    }
+
+    public Map<String, Integer> buscarQuantidadePorMes() {
+        Map<String, Integer> mapa = new LinkedHashMap<>();
+
+        String sql = """
+        SELECT DATE_FORMAT(agenda, '%m/%Y') as mes, COUNT(*) as qtd
+        FROM ordem_servico
+        WHERE e_status = 'FECHADA'
+        GROUP BY mes
+        ORDER BY STR_TO_DATE(mes, '%m/%Y')
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String mes = rs.getString("mes");
+                int qtd = rs.getInt("qtd");
+                mapa.put(mes, qtd);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mapa;
+    }
+
+
 }

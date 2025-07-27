@@ -1,24 +1,18 @@
-    /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package br.edu.ifsc.fln.controller;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 
-/**
- * FXML Controller class
- *
- * @author mpisc
- */
 public class FXMLVBoxMainAppController implements Initializable {
 
     @FXML
@@ -38,82 +32,81 @@ public class FXMLVBoxMainAppController implements Initializable {
     @FXML
     private MenuItem menuItemProcessoEstoque;
     @FXML
-    private MenuItem menuItemGraficoVendaPorMes;
+    private MenuItem menuItemGraficoOrdemServicoPorMes;
     @FXML
-    private MenuItem menuItemRelatorioEstoque;
-    @FXML 
-    private MenuItem menuItemGraficosVendasPorMes;
-
-
+    private MenuItem menuItemGraficoVendasPorMes;
 
     @FXML
     private AnchorPane anchorPane;
-    /**
-     * Initializes the controller class.
-     */
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }  
-    
+        // Inicialização, se necessário
+    }
+
     @FXML
     public void handleMenuItemCadastroCor() throws IOException {
-        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroCor.fxml"));
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroCor.fxml"));
         anchorPane.getChildren().setAll(a);
     }
 
     @FXML
     public void handleMenuItemCadastroMarca() throws IOException {
-        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroMarca.fxml"));
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroMarca.fxml"));
         anchorPane.getChildren().setAll(a);
     }
-    
+
     @FXML
     public void handleMenuItemCadastroModelo() throws IOException {
-                AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroModelo.fxml"));
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroModelo.fxml"));
         anchorPane.getChildren().setAll(a);
     }
 
     @FXML
-    private void handleMenuItemCadastroVeiculo() throws IOException {
-
-        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroVeiculo.fxml"));
+    public void handleMenuItemCadastroVeiculo() throws IOException {
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroVeiculo.fxml"));
         anchorPane.getChildren().setAll(a);
     }
-
 
     @FXML
     public void handleMenuItemCadastroCliente() throws IOException {
-        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroCliente.fxml"));
-        anchorPane.getChildren().setAll(a);
-    }    
-
-    @FXML
-    public void handleMenuItemCadastroServico() throws IOException {
-        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroServico.fxml"));
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroCliente.fxml"));
         anchorPane.getChildren().setAll(a);
     }
 
     @FXML
-    void handleMenuItemProcessoOrdemServico() throws IOException {
-        AnchorPane a = (AnchorPane) FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroOrdemServico.fxml"));
+    public void handleMenuItemCadastroServico() throws IOException {
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroServico.fxml"));
         anchorPane.getChildren().setAll(a);
+    }
 
-    }     
-    
     @FXML
-    public void handleMenuItemProcessoVenda() throws IOException {
-        //TODO not implemented yet
-    }     
-    
+    public void handleMenuItemProcessoOrdemServico() throws IOException {
+        AnchorPane a = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneCadastroOrdemServico.fxml"));
+        anchorPane.getChildren().setAll(a);
+    }
+
+//    @FXML
+//    public void handleMenuItemGraficosVendasPorMes(ActionEvent event) throws IOException {
+//        VBox vbox = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneGraficos.fxml"));
+//        anchorPane.getChildren().setAll(vbox);
+//    }
+
     @FXML
-    public void handleMenuItemGraficosVendasPorMes() throws IOException {
-        //TODO not implemented yet
-    } 
-    
+    public void handleMenuItemGraficosVendasPorMes(ActionEvent event) throws IOException {
+        Parent node = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneGraficos.fxml"));
+        anchorPane.getChildren().setAll(node);
+    }
+
+
+    @FXML
+    public void handleMenuItemGraficosOrdemServicoPorMes(ActionEvent event) throws IOException {
+        br.edu.ifsc.fln.utils.Relatorio.gerarGraficoQuantidadeOS(); // ✅ chama Jasper
+    }
+
+
     @FXML
     public void handleMenuItemRelatorioEstoqueProdutos() throws IOException {
-        //TODO not implemented yet
-    } 
-    
+        // TODO: implementar
+    }
 }
