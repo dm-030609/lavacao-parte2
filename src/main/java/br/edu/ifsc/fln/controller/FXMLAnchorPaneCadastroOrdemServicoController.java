@@ -6,6 +6,7 @@ import br.edu.ifsc.fln.model.dao.PontuacaoDAO;
 import br.edu.ifsc.fln.model.database.Database;
 import br.edu.ifsc.fln.model.database.DatabaseFactory;
 import br.edu.ifsc.fln.model.domain.*;
+import br.edu.ifsc.fln.utils.CupomFiscal;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -37,6 +39,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoController implements Initializab
     @FXML private Label lbOrdemServicoStatus;
     @FXML private Label lbOrdemServicoTotal;
     @FXML private Label lbOrdemServicoPontuacao;
+    @FXML private Button buttonCupomFiscal;
 
     @FXML private TableColumn<OrdemDeServico, Integer> tableColumnOrdemServicoId;
     @FXML private TableColumn<OrdemDeServico, String> tableColumnOrdemServicoData;
@@ -194,6 +197,23 @@ public class FXMLAnchorPaneCadastroOrdemServicoController implements Initializab
             alert.show();
         }
     }
+
+    @FXML
+    private void handleBtCupomFiscal() {
+        OrdemDeServico osSelecionada = tableViewOrdemServico.getSelectionModel().getSelectedItem();
+
+        if (osSelecionada != null && osSelecionada.geteStatus() == EStatus.FECHADA) {
+            CupomFiscal.gerar(osSelecionada.getId());
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cupom Fiscal");
+            alert.setHeaderText("Seleção inválida");
+            alert.setContentText("Selecione uma Ordem de Serviço com status FECHADA para emitir o cupom fiscal.");
+            alert.showAndWait();
+        }
+    }
+
+
 
     private boolean showFXMLAnchorPaneCadastroOrdemDeServicoDialog(OrdemDeServico ordemDeServico) throws IOException {
         FXMLLoader loader = new FXMLLoader();

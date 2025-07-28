@@ -91,6 +91,7 @@
             </VBox>
 
             <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Button fx:id="btnResgatarFidelidade" onAction="#handleResgatarFidelidade" text="Resgatar Fidelidade" />
                 <Button fx:id="buttonConfirmar" onAction="#handleButtonConfirmar" text="Confirmar" />
                 <Button fx:id="buttonCancelar" onAction="#handleButtonCancelar" text="Cancelar" />
             </HBox>

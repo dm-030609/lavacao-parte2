@@ -1,6 +1,7 @@
 package br.edu.ifsc.fln.controller;
 
 import br.edu.ifsc.fln.model.dao.OrdemDeServicoDAO;
+import br.edu.ifsc.fln.model.dao.PontuacaoDAO;
 import br.edu.ifsc.fln.model.dao.VeiculoDAO;
 import br.edu.ifsc.fln.model.dao.ServicoDAO;
 import br.edu.ifsc.fln.model.database.Database;
@@ -46,6 +47,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
     @FXML private ComboBox<String> comboBoxStatus;
     @FXML private Button buttonConfirmar;
     @FXML private Button buttonCancelar;
+    @FXML private Button btnResgatarFidelidade;
 
     private final ObservableList<ItemOS> listaItens = FXCollections.observableArrayList();
     private final OrdemDeServicoDAO osDAO = new OrdemDeServicoDAO();
@@ -287,6 +289,50 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
     private void handleButtonCancelar() {
         dialogStage.close();
     }
+
+
+    @FXML
+    private void handleResgatarFidelidade() {
+        if (ordemDeServico != null && ordemDeServico.getVeiculo() != null) {
+            Cliente cliente = ordemDeServico.getVeiculo().getCliente();
+
+            if (cliente != null && cliente.getPontuacao() != null) {
+                int pontosAtuais = cliente.getPontuacao().getQtd();
+
+                if (pontosAtuais >= 100) {
+                    cliente.getPontuacao().setQtd(pontosAtuais - 100);
+                    new PontuacaoDAO(connection).atualizar(cliente.getPontuacao(), cliente.getId());
+
+                    // Desconta R$ 100 do valor total
+                    double total = Double.parseDouble(textFieldValorTotal.getText().replace(",", "."));
+                    double valorComDesconto = Math.max(0, total - 100); // evita negativo
+
+                    textFieldValorTotal.setText(String.format("%.2f", valorComDesconto).replace(".", ","));
+
+                    calcularValorComDesconto();
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Resgate de Fidelidade");
+                    alert.setHeaderText(null);
+                    alert.setContentText("R$ 100,00 de desconto aplicados com sucesso!");
+                    alert.showAndWait();
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Pontuação insuficiente");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Você precisa de no mínimo 100 pontos para resgatar a fidelidade.");
+                    alert.showAndWait();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erro");
+                alert.setHeaderText(null);
+                alert.setContentText("Não foi possível identificar a pontuação do cliente.");
+                alert.showAndWait();
+            }
+        }
+    }
+
 
     private void calcularValorComDesconto() {
         double total = tableViewItens.getItems().stream()

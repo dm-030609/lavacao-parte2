@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.5.final using JasperReports Library version 6.21.5-74d586df47b25dbd05bd0957999819196e59934a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="cupom_ordem_servico" pageWidth="300" pageHeight="842" columnWidth="280" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10" uuid="1e53b5a1-4abc-4c2c-9c3d-42a9ef718c84">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySQLLocal"/>
+	<parameter name="ID_OS" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT 
+                os.id,
+                os.numero,
+                os.agenda,
+                os.total,
+                c.nome AS cliente_nome,
+                c.email,
+                c.celular,
+                pf.cpf,
+                pj.cnpj,
+                p.quantidade AS pontos,
+                s.id AS servico_id,
+                s.descricao AS servico_desc,
+                s.valor AS servico_valor
+            FROM ordem_servico os
+            JOIN veiculo v ON v.id = os.id_veiculo
+            JOIN cliente c ON c.id = v.id_cliente
+            LEFT JOIN pessoa_fisica pf ON pf.id_cliente = c.id
+            LEFT JOIN pessoa_juridica pj ON pj.id_cliente = c.id
+            LEFT JOIN pontuacao p ON p.id = c.id_pontuacao
+            JOIN item_os io ON io.id_ordem_servico = os.id
+            JOIN servico s ON s.id = io.id_servico
+            WHERE os.id = $P{ID_OS}]]>
+	</queryString>
+	<field name="numero" class="java.lang.String"/>
+	<field name="agenda" class="java.sql.Date"/>
+	<field name="total" class="java.lang.Double"/>
+	<field name="cliente_nome" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="celular" class="java.lang.String"/>
+	<field name="cpf" class="java.lang.String"/>
+	<field name="cnpj" class="java.lang.String"/>
+	<field name="pontos" class="java.lang.Integer"/>
+	<field name="servico_id" class="java.lang.Integer"/>
+	<field name="servico_desc" class="java.lang.String"/>
+	<field name="servico_valor" class="java.math.BigDecimal"/>
+	<title>
+		<band height="60">
+			<staticText>
+				<reportElement x="0" y="0" width="280" height="20" uuid="8988ccdf-d532-4d9a-b606-ec0f21e607a0"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Lava Lento Express]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="25" width="280" height="15" uuid="757a57ae-14ba-4e7d-8d30-f2c720d41d14"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Número OS: " + $F{numero}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="40" width="280" height="15" uuid="89387671-f091-456b-ab66-72e047b85ddc"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["Data: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{agenda})]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="60">
+			<textField>
+				<reportElement x="0" y="0" width="280" height="15" uuid="4eea8e98-6396-4711-a697-3b1ede59fe89"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Cliente: " + $F{cliente_nome}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="15" width="280" height="15" uuid="a8a72e6d-d314-43da-ae4f-2f39b9afb169"/>
+				<textFieldExpression><![CDATA[$F{cpf} != null ? "CPF: " + $F{cpf} : "CNPJ: " + $F{cnpj}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="30" width="280" height="15" uuid="6e1e0295-303b-4ed2-b0df-5bdd1e983b45"/>
+				<textFieldExpression><![CDATA["Celular: " + $F{celular}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="45" width="280" height="15" uuid="ece211ac-ca18-4a70-ae9e-97dbb8ffe70f"/>
+				<textFieldExpression><![CDATA["Email: " + $F{email}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="50">
+			<textField>
+				<reportElement x="0" y="0" width="280" height="15" uuid="1fc2c2d7-4b8c-4944-846a-85f60a052b30"/>
+				<textFieldExpression><![CDATA["Serviço: " + $F{servico_desc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="15" width="280" height="15" uuid="086b0dc0-3bb5-4233-a1a3-295e82bc2a96"/>
+				<textFieldExpression><![CDATA["ID: " + $F{servico_id} + " - Valor: R$ " + $F{servico_valor}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="70">
+			<line>
+				<reportElement x="0" y="0" width="280" height="1" uuid="f5dfed3a-50d6-4874-be37-e340e0356b6c"/>
+			</line>
+			<textField>
+				<reportElement x="0" y="10" width="280" height="15" uuid="a79da691-75a2-427c-8ed2-91433ce1edc8"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total: R$ " + $F{total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="30" width="280" height="15" uuid="4da1b77a-cebc-4e2f-8de5-07d2d0085ec1"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Pontuação atual: " + $F{pontos}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="50" width="280" height="15" uuid="9eace5d0-57d9-4621-9355-0373ca43fde6"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Obrigado pela preferência!]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

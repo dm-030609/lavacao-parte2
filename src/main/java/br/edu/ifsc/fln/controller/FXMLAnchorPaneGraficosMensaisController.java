@@ -38,6 +38,9 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
 
     private OrdemDeServicoDAO ordemDAO;
 
+    private enum TipoGrafico { VALOR_TOTAL, QUANTIDADE_OS }
+    private TipoGrafico graficoAtual = TipoGrafico.VALOR_TOTAL; // padrão
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         gerarGraficoFinanceiro(); // padrão ao abrir
@@ -54,6 +57,8 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
     }
 
     private void gerarGraficoFinanceiro() {
+        graficoAtual = TipoGrafico.VALOR_TOTAL;
+
         Database db = new DatabaseMySQL();
         Connection conn = db.conectar();
 
@@ -81,6 +86,8 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
     }
 
     private void gerarGraficoQuantidade() {
+        graficoAtual = TipoGrafico.QUANTIDADE_OS;
+
         Database db = new DatabaseMySQL();
         Connection conn = db.conectar();
 
@@ -114,8 +121,17 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
 
         if (conn != null) {
             try {
-                // Se quiser diferenciar os relatórios, pode criar um relatorio exclusivo para quantidade também
-                String caminhoRelatorio = "src/main/java/br/edu/ifsc/fln/utils/grafico_ordens_VALOR_TOTAL_OK.jrxml";
+                String caminhoRelatorio;
+                String titulo;
+
+                if (graficoAtual == TipoGrafico.VALOR_TOTAL) {
+                    caminhoRelatorio = "src/main/java/br/edu/ifsc/fln/utils/grafico_ordens_VALOR_TOTAL_OK.jrxml";
+                    titulo = "Relatório Financeiro por Mês";
+                } else {
+                    caminhoRelatorio = "src/main/java/br/edu/ifsc/fln/utils/grafico_ordens_FINAL_RESOLVIDO.jrxml";
+                    titulo = "Relatório de OS por Mês";
+                }
+
                 System.out.println("DEBUG >> Caminho do relatório: " + caminhoRelatorio);
 
                 JasperReport jasperReport = JasperCompileManager.compileReport(caminhoRelatorio);
@@ -124,7 +140,7 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
 
                 JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parametros, conn);
                 JasperViewer viewer = new JasperViewer(jasperPrint, false);
-                viewer.setTitle("Relatório de Vendas por Mês");
+                viewer.setTitle(titulo);
                 viewer.setVisible(true);
 
             } catch (Exception e) {

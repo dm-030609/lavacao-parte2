@@ -92,6 +92,7 @@
                      <Button fx:id="buttonInserir" onAction="#handleBtInserir" text="Inserir" />
                      <Button fx:id="buttonAlterar" onAction="#handleBtAlterar" text="Alterar" />
                      <Button fx:id="buttonRemover" onAction="#handleBtExcluir" text="Remover" />
+                     <Button fx:id="buttonCupomFiscal" onAction="#handleBtCupomFiscal" text="Cupom Fiscal" />
                   </HBox>
                </children>
             </AnchorPane>

@@ -6,11 +6,9 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.view.JasperViewer;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Relatorio {
 
@@ -56,9 +54,9 @@ public class Relatorio {
     public static void gerarGraficoQuantidadeOS() {
         try {
             Connection conexao = new DatabaseMySQL().conectar();
-            String caminho = "/br/edu/ifsc/fln/utils/grafico_ordens_FINAL_RESOLVIDO.jrxml";
+            String caminho = "/report/grafico_ordens_FINAL_RESOLVIDO.jrxml";
 
-            InputStream input = Relatorio.class.getResourceAsStream("/br/edu/ifsc/fln/utils/grafico_ordens_FINAL_RESOLVIDO.jrxml");
+            InputStream input = Relatorio.class.getResourceAsStream("/report/grafico_ordens_FINAL_RESOLVIDO.jrxml");
             JasperReport report = JasperCompileManager.compileReport(input);
             JasperPrint print = JasperFillManager.fillReport(report, null, conexao);
             JasperViewer viewer = new JasperViewer(print, false);

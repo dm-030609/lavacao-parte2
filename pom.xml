@@ -105,6 +105,7 @@
                     <include>**/*.png</include>
                     <include>**/*.jpg</include>
                     <include>**/*.jasper</include>
+                    <include>**/*.jrxml</include>
                 </includes>
             </resource>
         </resources>
