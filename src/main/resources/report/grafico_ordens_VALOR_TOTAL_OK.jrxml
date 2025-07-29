@@ -30,8 +30,15 @@
     <field name="mes" class="java.lang.String"/>
     <field name="valor_total" class="java.math.BigDecimal"/>
 
+    <!-- Soma do valor_total -->
+    <variable name="SomaValorTotal" class="java.math.BigDecimal" calculation="Sum">
+        <variableExpression><![CDATA[$F{valor_total}]]></variableExpression>
+    </variable>
+
     <summary>
-        <band height="300" splitType="Stretch">
+        <band height="330" splitType="Stretch">
+
+            <!-- Gráfico de barras -->
             <barChart>
                 <chart evaluationTime="Report">
                     <reportElement x="0" y="0" width="500" height="250"
@@ -64,6 +71,17 @@
                     </valueAxisFormat>
                 </barPlot>
             </barChart>
+
+            <!-- Valor Total no rodapé -->
+            <textField>
+                <reportElement x="0" y="270" width="555" height="20"/>
+                <textElement textAlignment="Left">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Valor Total: R$ " + new java.text.DecimalFormat("#,##0.00").format($V{SomaValorTotal})]]></textFieldExpression>
+            </textField>
+
         </band>
     </summary>
+
 </jasperReport>

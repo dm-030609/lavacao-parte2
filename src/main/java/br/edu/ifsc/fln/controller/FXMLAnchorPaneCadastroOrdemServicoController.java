@@ -41,6 +41,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoController implements Initializab
     @FXML private Label lbOrdemServicoPontuacao;
     @FXML private Button buttonCupomFiscal;
 
+
     @FXML private TableColumn<OrdemDeServico, Integer> tableColumnOrdemServicoId;
     @FXML private TableColumn<OrdemDeServico, String> tableColumnOrdemServicoData;
     @FXML private TableColumn<OrdemDeServico, String> tableColumnOrdemServicoVeiculo;

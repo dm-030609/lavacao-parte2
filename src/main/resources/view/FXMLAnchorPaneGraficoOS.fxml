@@ -9,38 +9,38 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="10" style="-fx-padding: 20;" VBox.vgrow="ALWAYS"
-      xmlns="http://javafx.com/javafx/23.0.1"
+<VBox spacing="10" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/23.0.1"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="br.edu.ifsc.fln.controller.FXMLAnchorPaneGraficosMensaisController">
+      fx:controller="br.edu.ifsc.fln.controller.FXMLAnchorPaneGraficosMensaisOSController">
 
     <children>
 
-        <!-- Botões de controle -->
+        <!-- Botão de exportação -->
         <HBox alignment="CENTER_LEFT" spacing="15">
             <children>
                 <Button onAction="#handleExportarPDF" text="Exportar para PDF" />
             </children>
         </HBox>
 
-        <!-- Gráfico -->
+        <!-- Gráfico de barras -->
         <AnchorPane VBox.vgrow="ALWAYS">
             <children>
                 <BarChart fx:id="barChart" title="Gráfico" AnchorPane.bottomAnchor="0.0"
                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <xAxis>
-                        <CategoryAxis fx:id="categoryAxis" />
+                        <CategoryAxis fx:id="categoryAxis"/>
                     </xAxis>
                     <yAxis>
-                        <NumberAxis fx:id="numberAxis" />
+                        <NumberAxis fx:id="numberAxis"/>
                     </yAxis>
                 </BarChart>
             </children>
         </AnchorPane>
 
-        <!-- Label de total -->
-        <Label fx:id="labelTotalOS" text="Total de Ordens de Serviço: 0"
-               style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+        <!-- Label com total -->
+        <Label fx:id="labelTotalOS"
+               style="-fx-font-size: 14px; -fx-font-weight: bold;"
+               text="Total de Ordens de Serviço: 0"/>
 
     </children>
 </VBox>

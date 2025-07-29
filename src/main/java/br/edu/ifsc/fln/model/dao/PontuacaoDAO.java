@@ -66,6 +66,34 @@ public class PontuacaoDAO {
         return pontuacao;
     }
 
+    public Pontuacao buscarPorClienteId(int clienteId) {
+        Pontuacao pontuacao = null;
+        String sql = """
+        SELECT p.id, p.quantidade 
+        FROM cliente c 
+        JOIN pontuacao p ON c.id_pontuacao = p.id 
+        WHERE c.id = ?
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, clienteId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                pontuacao = new Pontuacao();
+                pontuacao.setId(rs.getInt("id"));
+                pontuacao.setQtd(rs.getInt("quantidade"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return pontuacao;
+    }
+
+
+
 }
 
 

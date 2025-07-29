@@ -86,22 +86,18 @@ public class FXMLVBoxMainAppController implements Initializable {
         anchorPane.getChildren().setAll(a);
     }
 
-//    @FXML
-//    public void handleMenuItemGraficosVendasPorMes(ActionEvent event) throws IOException {
-//        VBox vbox = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneGraficos.fxml"));
-//        anchorPane.getChildren().setAll(vbox);
-//    }
+    @FXML
+    public void handleMenuItemGraficosOrdemServicoPorMes(ActionEvent event) throws IOException {
+        Parent node = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneGraficoOS.fxml"));
+        anchorPane.getChildren().setAll(node);
+    }
+
+
 
     @FXML
     public void handleMenuItemGraficosVendasPorMes(ActionEvent event) throws IOException {
         Parent node = FXMLLoader.load(getClass().getResource("/view/FXMLAnchorPaneGraficos.fxml"));
         anchorPane.getChildren().setAll(node);
-    }
-
-
-    @FXML
-    public void handleMenuItemGraficosOrdemServicoPorMes(ActionEvent event) throws IOException {
-        br.edu.ifsc.fln.utils.Relatorio.gerarGraficoQuantidadeOS(); // ✅ chama Jasper
     }
 
 

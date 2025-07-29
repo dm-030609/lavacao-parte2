@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
+public class FXMLAnchorPaneGraficosMensaisOSController implements Initializable {
 
     @FXML
     private BarChart<String, Number> barChart;
@@ -33,30 +33,19 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
     private NumberAxis numberAxis;
 
     @FXML
-    private Button btGerarGraficoFinanceiro;
+    private Button btExportarPDF;
 
-    @FXML private Button btGerarOsPorMes;
-
-    @FXML private Label labelTotalOS;
+    @FXML
+    private Label labelTotalOS;
 
     private OrdemDeServicoDAO ordemDAO;
 
-    private enum TipoGrafico { VALOR_TOTAL, QUANTIDADE_OS }
-    private TipoGrafico graficoAtual = TipoGrafico.VALOR_TOTAL; // padrão
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        gerarGraficoFinanceiro(); // padrão ao abrir
+        gerarGraficoQuantidade(); // padrão ao abrir
     }
 
-    @FXML
-    private void handleGerarGraficoFinanceiro() {
-        gerarGraficoFinanceiro();
-    }
-
-    private void gerarGraficoFinanceiro() {
-        graficoAtual = TipoGrafico.VALOR_TOTAL;
-
+    private void gerarGraficoQuantidade() {
         Database db = new DatabaseMySQL();
         Connection conn = db.conectar();
 
@@ -64,25 +53,25 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
             ordemDAO = new OrdemDeServicoDAO();
             ordemDAO.setConnection(conn);
 
-            Map<String, Double> dados = ordemDAO.buscarTotaisPorMes(); // valor R$
+            Map<String, Integer> dados = ordemDAO.buscarQuantidadePorMes();
 
             barChart.getData().clear();
-            barChart.setTitle("Valor Total Arrecadado por Mês");
+            barChart.setTitle("Quantidade de OS por Mês");
 
             XYChart.Series<String, Number> series = new XYChart.Series<>();
-            series.setName("Total R$ por mês");
+            series.setName("Total de OS por mês");
 
-            double valorTotal = 0.0;
+            int totalOS = 0;
 
-            for (Map.Entry<String, Double> entrada : dados.entrySet()) {
+            for (Map.Entry<String, Integer> entrada : dados.entrySet()) {
                 series.getData().add(new XYChart.Data<>(entrada.getKey(), entrada.getValue()));
-                valorTotal += entrada.getValue();
+                totalOS += entrada.getValue();
             }
 
             barChart.getData().add(series);
 
             if (labelTotalOS != null) {
-                labelTotalOS.setText("Valor Total: R$ " + String.format("%.2f", valorTotal).replace(".", ","));
+                labelTotalOS.setText("Total de Ordens de Serviço: " + totalOS);
             }
 
             db.desconectar(conn);
@@ -91,8 +80,6 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
         }
     }
 
-
-
     @FXML
     private void handleExportarPDF() {
         Database db = new DatabaseMySQL();
@@ -100,16 +87,8 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
 
         if (conn != null) {
             try {
-                String caminhoRelatorio;
-                String titulo;
-
-                if (graficoAtual == TipoGrafico.VALOR_TOTAL) {
-                    caminhoRelatorio = "/report/grafico_ordens_VALOR_TOTAL_OK.jrxml";
-                    titulo = "Relatório Financeiro por Mês";
-                } else {
-                    caminhoRelatorio = "/report/grafico_ordens_FINAL_RESOLVIDO.jrxml";
-                    titulo = "Relatório de OS por Mês";
-                }
+                String caminhoRelatorio = "/report/grafico_ordens_FINAL_RESOLVIDO.jrxml";
+                String titulo = "Relatório de OS por Mês";
 
                 InputStream input = getClass().getResourceAsStream(caminhoRelatorio);
 
@@ -118,7 +97,6 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
                 }
 
                 JasperReport jasperReport = JasperCompileManager.compileReport(input);
-
                 Map<String, Object> parametros = new HashMap<>();
 
                 JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parametros, conn);
@@ -136,5 +114,4 @@ public class FXMLAnchorPaneGraficosMensaisController implements Initializable {
             System.err.println("Erro ao conectar ao banco de dados.");
         }
     }
-
 }

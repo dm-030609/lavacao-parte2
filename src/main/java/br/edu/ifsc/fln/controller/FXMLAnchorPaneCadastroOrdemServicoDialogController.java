@@ -148,25 +148,22 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
     private void preencherCamposVeiculo() {
         Veiculo veiculo = comboBoxPlaca.getSelectionModel().getSelectedItem();
         if (veiculo != null) {
-            textFieldCliente.setText(veiculo.getCliente().getNome());
+            Cliente cliente = veiculo.getCliente();
+            textFieldCliente.setText(cliente.getNome());
+
+            // 👇 FORÇA carregar a pontuação
+            PontuacaoDAO pontuacaoDAO = new PontuacaoDAO(connection);
+            cliente.setPontuacao(pontuacaoDAO.buscarPorClienteId(cliente.getId()));
 
             Modelo modelo = veiculo.getModelo();
             if (modelo != null) {
                 textFieldModelo.setText(modelo.getDescricao());
 
                 Marca marca = modelo.getMarca();
-                if (marca != null) {
-                    textFieldMarca.setText(marca.getNome());
-                } else {
-                    textFieldMarca.setText("Marca não encontrada");
-                }
+                textFieldMarca.setText(marca != null ? marca.getNome() : "Marca não encontrada");
 
-                if (modelo.geteCategoria() != null) {
-                    textFieldCategoria.setText(modelo.geteCategoria().name());
-                } else {
-                    textFieldCategoria.setText("Categoria indefinida");
-                }
-
+                textFieldCategoria.setText(modelo.geteCategoria() != null ?
+                        modelo.geteCategoria().name() : "Categoria indefinida");
             } else {
                 textFieldModelo.setText("Modelo não encontrado");
                 textFieldMarca.setText("");
@@ -174,6 +171,7 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
             }
         }
     }
+
 
     private void preencherValorServico() {
         Servico s = comboBoxServico.getSelectionModel().getSelectedItem();
@@ -296,8 +294,11 @@ public class FXMLAnchorPaneCadastroOrdemServicoDialogController {
         if (ordemDeServico != null && ordemDeServico.getVeiculo() != null) {
             Cliente cliente = ordemDeServico.getVeiculo().getCliente();
 
+
             if (cliente != null && cliente.getPontuacao() != null) {
                 int pontosAtuais = cliente.getPontuacao().getQtd();
+
+                System.out.println(">>> PONTOS ATUAIS: " + pontosAtuais);
 
                 if (pontosAtuais >= 100) {
                     cliente.getPontuacao().setQtd(pontosAtuais - 100);

@@ -30,15 +30,22 @@
 	<field name="mes" class="java.lang.String"/>
 	<field name="total_os" class="java.lang.Integer"/>
 
+	<!-- Variável para somar total de OS -->
+	<variable name="total_os_soma" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_os}]]></variableExpression>
+	</variable>
+
 	<summary>
-		<band height="300" splitType="Stretch">
+		<band height="320" splitType="Stretch">
+
+			<!-- Gráfico de barras -->
 			<barChart>
 				<chart evaluationTime="Report">
 					<reportElement x="0" y="0" width="500" height="250"
 								   forecolor="#333333" backcolor="#ffffff"/>
 					<chartTitle>
 						<font size="14" isBold="true"/>
-						<titleExpression><![CDATA["Quantidade de OS por Mês"]]></titleExpression>
+						<titleExpression><![CDATA["Quantidade de Ordens de Serviço por Mês"]]></titleExpression>
 					</chartTitle>
 					<chartLegend>
 						<font size="10"/>
@@ -64,6 +71,17 @@
 					</valueAxisFormat>
 				</barPlot>
 			</barChart>
+
+			<!-- Texto com total de OS -->
+			<textField>
+				<reportElement x="0" y="260" width="500" height="30"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total OS  = " + $V{total_os_soma}]]></textFieldExpression>
+			</textField>
+
 		</band>
 	</summary>
+
 </jasperReport>
