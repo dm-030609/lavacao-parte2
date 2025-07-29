@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="grafico_valor_total"
+              pageWidth="595"
+              pageHeight="842"
+              whenNoDataType="NoPages"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              uuid="9f0d41f8-c413-4f2e-aef7-0918c6041f9e">
+
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySQLLocal"/>
+
+    <queryString language="SQL">
+        <![CDATA[
+            SELECT 
+                DATE_FORMAT(o.agenda, '%m/%Y') AS mes,
+                SUM(o.total) AS valor_total
+            FROM ordem_servico o
+            WHERE o.e_status = 'FECHADA'
+            GROUP BY DATE_FORMAT(o.agenda, '%m/%Y')
+            ORDER BY MAX(o.agenda) DESC;
+        ]]>
+    </queryString>
+
+    <field name="mes" class="java.lang.String"/>
+    <field name="valor_total" class="java.math.BigDecimal"/>
+
+    <!-- Soma do valor_total -->
+    <variable name="SomaValorTotal" class="java.math.BigDecimal" calculation="Sum">
+        <variableExpression><![CDATA[$F{valor_total}]]></variableExpression>
+    </variable>
+
+    <summary>
+        <band height="330" splitType="Stretch">
+
+            <!-- Gráfico de barras -->
+            <barChart>
+                <chart evaluationTime="Report">
+                    <reportElement x="0" y="0" width="500" height="250"
+                                   forecolor="#333333" backcolor="#ffffff"/>
+                    <chartTitle>
+                        <font size="14" isBold="true"/>
+                        <titleExpression><![CDATA["Valor Total Arrecadado por Mês"]]></titleExpression>
+                    </chartTitle>
+                    <chartLegend>
+                        <font size="10"/>
+                    </chartLegend>
+                </chart>
+                <categoryDataset>
+                    <categorySeries>
+                        <seriesExpression><![CDATA["R$ Total"]]></seriesExpression>
+                        <categoryExpression><![CDATA[$F{mes}]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{valor_total}]]></valueExpression>
+                    </categorySeries>
+                </categoryDataset>
+                <barPlot>
+                    <plot/>
+                    <itemLabel>
+                        <font size="10" isBold="true"/>
+                    </itemLabel>
+                    <categoryAxisFormat>
+                        <axisFormat/>
+                    </categoryAxisFormat>
+                    <valueAxisFormat>
+                        <axisFormat/>
+                    </valueAxisFormat>
+                </barPlot>
+            </barChart>
+
+            <!-- Valor Total no rodapé -->
+            <textField>
+                <reportElement x="0" y="270" width="555" height="20"/>
+                <textElement textAlignment="Left">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Valor Total: R$ " + new java.text.DecimalFormat("#,##0.00").format($V{SomaValorTotal})]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </summary>
+
+</jasperReport>

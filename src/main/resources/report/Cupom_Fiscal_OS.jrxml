@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+			  name="cupom_ordem_servico" pageWidth="300" pageHeight="842" columnWidth="280" leftMargin="10" rightMargin="10" topMargin="10" bottomMargin="10">
+
+	<parameter name="ID_OS" class="java.lang.Integer"/>
+
+	<queryString>
+		<![CDATA[
+        SELECT
+			os.id, os.numero, os.agenda, os.total, os.desconto,
+			c.nome AS cliente_nome, c.email, c.celular,
+			pf.cpf, pj.cnpj, p.quantidade AS pontos_atuais,
+			s.id AS servico_id, s.descricao AS servico_desc, s.valor AS servico_valor, s.pontos AS servico_pontos,
+			v.placa, cor.nome AS cor,
+			modelo.descricao AS modelo_desc,
+			marca.nome AS marca_nome
+		FROM ordem_servico os
+		JOIN veiculo v ON v.id = os.id_veiculo
+		JOIN modelo ON modelo.id = v.id_modelo
+		JOIN marca ON marca.id = modelo.id_marca
+		JOIN cor ON cor.id = v.id_cor
+		JOIN cliente c ON c.id = v.id_cliente
+		LEFT JOIN pessoa_fisica pf ON pf.id_cliente = c.id
+		LEFT JOIN pessoa_juridica pj ON pj.id_cliente = c.id
+		LEFT JOIN pontuacao p ON p.id = c.id_pontuacao
+		JOIN item_os io ON io.id_ordem_servico = os.id
+		JOIN servico s ON s.id = io.id_servico
+		WHERE os.id = $P{ID_OS}
+        ]]>
+	</queryString>
+
+	<field name="numero" class="java.lang.String"/>
+	<field name="agenda" class="java.sql.Date"/>
+	<field name="total" class="java.lang.Double"/>
+	<field name="desconto" class="java.lang.Double"/>
+	<field name="cliente_nome" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="celular" class="java.lang.String"/>
+	<field name="cpf" class="java.lang.String"/>
+	<field name="cnpj" class="java.lang.String"/>
+	<field name="pontos_atuais" class="java.lang.Integer"/>
+	<field name="servico_id" class="java.lang.Integer"/>
+	<field name="servico_desc" class="java.lang.String"/>
+	<field name="servico_valor" class="java.math.BigDecimal"/>
+	<field name="servico_pontos" class="java.lang.Integer"/>
+	<field name="placa" class="java.lang.String"/>
+	<field name="modelo_desc" class="java.lang.String"/>
+	<field name="marca_nome" class="java.lang.String"/>
+	<field name="cor" class="java.lang.String"/>
+
+	<variable name="SOMA_PONTOS_OS" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{servico_pontos}]]></variableExpression>
+	</variable>
+
+	<title>
+		<band height="60">
+			<staticText>
+				<reportElement x="0" y="0" width="280" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Lava Lento Express]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="25" width="280" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["Número OS: " + $F{numero}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="40" width="280" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA["Data: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{agenda})]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+
+	<columnHeader>
+		<band height="165	">
+			<textField>
+				<reportElement x="0" y="0" width="280" height="15"/>
+				<textElement><font isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Cliente: " + $F{cliente_nome}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="15" width="280" height="15"/>
+				<textFieldExpression><![CDATA[$F{cpf} != null ? "CPF: " + $F{cpf} : "CNPJ: " + $F{cnpj}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="30" width="280" height="15"/>
+				<textFieldExpression><![CDATA["Celular: " + $F{celular}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="45" width="280" height="15"/>
+				<textFieldExpression><![CDATA["Email: " + $F{email}]]></textFieldExpression>
+			</textField>
+
+			<textField>
+				<reportElement x="0" y="60" width="280" height="10"/>
+				<textFieldExpression><![CDATA[" "]]></textFieldExpression>
+			</textField>
+
+			<line>
+				<reportElement x="0" y="71" width="280" height="1"/>
+			</line>
+
+			<textField>
+				<reportElement x="0" y="75" width="280" height="15"/>
+				<textElement><font isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Veículo:"]]></textFieldExpression>
+			</textField>
+
+			<textField>
+				<reportElement x="0" y="90" width="280" height="15"/>
+				<textFieldExpression><![CDATA["Placa: " + $F{placa}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="105" width="280" height="15"/>
+				<textFieldExpression><![CDATA["Modelo: " + $F{modelo_desc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="120" width="280" height="15"/>
+				<textFieldExpression><![CDATA["Marca: " + $F{marca_nome}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="135" width="280" height="15"/>
+				<textFieldExpression><![CDATA["Cor: " + $F{cor}]]></textFieldExpression>
+			</textField>
+
+			<textField>
+				<reportElement x="0" y="150" width="280" height="10"/>
+				<textFieldExpression><![CDATA[" "]]></textFieldExpression>
+			</textField>
+
+			<line>
+				<reportElement x="0" y="160" width="280" height="1"/>
+			</line>
+		</band>
+	</columnHeader>
+
+	<detail>
+		<band height="35">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="280" height="30"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[
+                    $V{REPORT_COUNT} == 1 ? "Serviços:\n" : ""
+                ]]></textFieldExpression>
+			</textField>
+
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="15" width="280" height="20"/>
+				<textFieldExpression><![CDATA[
+                    "- " + $F{servico_desc} + "\n" +
+                    "  ID: " + $F{servico_id} +
+                    " | Valor: R$ " + String.format("%.2f", $F{servico_valor}) +
+                    " | Pontos: " + $F{servico_pontos}
+                ]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+
+	<summary>
+		<band height="115">
+			<line>
+				<reportElement x="0" y="0" width="280" height="1"/>
+			</line>
+			<textField>
+				<reportElement x="0" y="10" width="280" height="15"/>
+				<textElement textAlignment="Right"><font isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Valor Bruto: R$ " + String.format("%.2f", ($F{total} / (1 - ($F{desconto} / 100))))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="25" width="280" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Desconto: " + String.format("%.0f", $F{desconto}) + "%"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="40" width="280" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Total com Desconto: R$ " + String.format("%.2f", $F{total})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="55" width="280" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Pontos ganhos nesta OS: " + $V{SOMA_PONTOS_OS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="70" width="280" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Pontuação atual: " + $F{pontos_atuais}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="88" width="280" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="0" y="95" width="280" height="15"/>
+				<textElement textAlignment="Center"><font isBold="true"/></textElement>
+				<text><![CDATA[Obrigado pela preferência, volte sempre!]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

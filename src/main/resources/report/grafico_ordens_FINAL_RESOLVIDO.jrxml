@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+			  name="grafico_qtd_os"
+			  pageWidth="595"
+			  pageHeight="842"
+			  whenNoDataType="NoPages"
+			  columnWidth="555"
+			  leftMargin="20"
+			  rightMargin="20"
+			  topMargin="20"
+			  bottomMargin="20"
+			  uuid="d12f3e27-9ac2-4c9e-b6f3-f3a4c2e1d93a">
+
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MySQLLocal"/>
+
+	<queryString language="SQL">
+		<![CDATA[
+            SELECT
+                DATE_FORMAT(o.agenda, '%m/%Y') AS mes,
+                COUNT(*) AS total_os
+            FROM ordem_servico o
+            WHERE o.e_status = 'FECHADA'
+            GROUP BY DATE_FORMAT(o.agenda, '%m/%Y')
+            ORDER BY MAX(o.agenda) DESC;
+        ]]>
+	</queryString>
+
+	<field name="mes" class="java.lang.String"/>
+	<field name="total_os" class="java.lang.Integer"/>
+
+	<!-- Variável para somar total de OS -->
+	<variable name="total_os_soma" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_os}]]></variableExpression>
+	</variable>
+
+	<summary>
+		<band height="320" splitType="Stretch">
+
+			<!-- Gráfico de barras -->
+			<barChart>
+				<chart evaluationTime="Report">
+					<reportElement x="0" y="0" width="500" height="250"
+								   forecolor="#333333" backcolor="#ffffff"/>
+					<chartTitle>
+						<font size="14" isBold="true"/>
+						<titleExpression><![CDATA["Quantidade de Ordens de Serviço por Mês"]]></titleExpression>
+					</chartTitle>
+					<chartLegend>
+						<font size="10"/>
+					</chartLegend>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["OS Concluídas"]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{mes}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{total_os}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot/>
+					<itemLabel>
+						<font size="10" isBold="true"/>
+					</itemLabel>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+
+			<!-- Texto com total de OS -->
+			<textField>
+				<reportElement x="0" y="260" width="500" height="30"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total OS  = " + $V{total_os_soma}]]></textFieldExpression>
+			</textField>
+
+		</band>
+	</summary>
+
+</jasperReport>
